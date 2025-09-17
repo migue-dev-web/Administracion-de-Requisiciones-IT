@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <login-register></login-register>
+    </div>
+
+
+    <script type="module">
+  import {createApp} from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
+
+      const LoginRegister = {
+        template: `
+            <div>
+                <h1>Login / Register</h1>
+                <h3>Register</h3>
+                <form @submit.prevent="register">
+                    <input type="text" v-model="name" placeholder="Name" />
+                    <input type="email" v-model="email" placeholder="Email" />
+                    <input type="password" v-model="password" placeholder="Password" />
+                    <button type="submit">Register</button>
+                </form>
+
+                <h3>Login</h3>
+                <form @submit.prevent="login">
+                    <input type="email" v-model="loginEmail" placeholder="Email" />
+                    <input type="password" v-model="loginPassword" placeholder="Password" />
+                    <button type="submit">Login</button>
+                </form>
+
+                <pre>{{ response }}</pre>
+            </div>
+        `,
+        data() {
+            return {
+                name: '',
+                email: '',
+                password: '',
+                loginEmail: '',
+                loginPassword: '',
+                response: ''
+            };
+        },
+        methods: {
+            async register() {
+                try {
+                    const res = await fetch('http://127.0.0.1:8000/api/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: this.name,
+                            email: this.email,
+                            password: this.password
+                        })
+                    });
+                    this.response = await res.json();
+                } catch (error) {
+                    console.error(error);
+                }
+            },
+            async login() {
+                try {
+                    const res = await fetch('http://127.0.0.1:8000/api/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: this.loginEmail,
+                            password: this.loginPassword
+                        })
+                    });
+                    this.response = await res.json();
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        }
+    };
+
+    createApp({
+        components: { 'login-register': LoginRegister }
+    }).mount('#app');
+</script>
+</body>
+</html>
