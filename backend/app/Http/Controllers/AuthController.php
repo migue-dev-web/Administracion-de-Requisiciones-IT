@@ -2,69 +2,61 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User as ModelsUser;
+
 use Illuminate\Http\Request;
+use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Auth as FacadesAuth;
+use Symfony\Component\HttpFoundation\Response;
+use User;
 
 class AuthController extends Controller
 {
-    private $file = 'users.json';
+   public function register(Request $request){
+    $request->validate([
+        'name'=>'required',
+        'email'=>'required|email|unique:users',
+        'password'=>'required|confirmed'
+    ]);
+    $user = new ModelsUser();
+    $user->name = $request->name;
+    $user->email = $request->email;
+    $user->password =Hash::make($request->password);
+    $user->save();
+    
+    return response($user, Response::HTTP_CREATED);
+    
+   }
 
-    private function readUsers()
-    {
-        if (!Storage::exists($this->file)) {
-            Storage::put($this->file, json_encode([]));
-        }
-        return json_decode(Storage::get($this->file), true);
+   public function login(Request $request){
+    $credenciales = $request->validate([
+        'email'=>['required','email'],
+        'password'=>['required']
+    ]);
+
+    if(FacadesAuth::attempt($credenciales)){
+        $user = FacadesAuth::user();
+        $token = $user->createToken('token')->plainTextToken;
+        $cookie = cookie('cookie_token', $token, 60 * 24);
+        return response(["token"=>$token], Response::HTTP_OK)->withoutCookie($cookie);
+    }else{
+        return response(["message"=>"Credenciales Invalidas"],Response::HTTP_UNAUTHORIZED);
     }
+    
+   }
 
-    private function writeUsers($users)
-    {
-        Storage::put($this->file, json_encode($users, JSON_PRETTY_PRINT));
-    }
+   public function logOut(Request $request){
+    $request->user()->currentAccessToken()->delete();
 
-    public function register(Request $request)
-    {
-        $users = $this->readUsers();
+    $cookie = cookie()->forget('cookie_token');
 
-      
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|min:4'
-        ]);
+    return response()->json([
+        'message' => 'Logout exitoso'
+    ], Response::HTTP_OK)->withCookie($cookie);
+   }
 
-        
-        foreach ($users as $user) {
-            if ($user['email'] === $request->email) {
-                return response()->json(['error' => 'Usuario ya registrado'], 400);
-            }
-        }
 
-        $newUser = [
-            'email' => $request->email,
-            'password' => bcrypt($request->password) 
-        ];
-
-        $users[] = $newUser;
-        $this->writeUsers($users);
-
-        return response()->json(['message' => 'Registro exitoso']);
-    }
-
-    public function login(Request $request)
-    {
-        $users = $this->readUsers();
-
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required'
-        ]);
-
-        foreach ($users as $user) {
-            if ($user['email'] === $request->email && password_verify($request->password, $user['password'])) {
-                return response()->json(['message' => 'Login exitoso']);
-            }
-        }
-
-        return response()->json(['error' => 'Credenciales inválidas'], 401);
-    }
 }
