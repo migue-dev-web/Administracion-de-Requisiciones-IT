@@ -49,7 +49,7 @@ class AuthController extends Controller
    }
 
    public function logOut(Request $request){
-    $request->user()->currentAccessToken()->delete();
+    $token = $request->user()->currentAccessToken()->delete();
 
     $cookie = cookie()->forget('cookie_token');
 
