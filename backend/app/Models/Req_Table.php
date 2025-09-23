@@ -14,6 +14,7 @@ class Req_Table extends Model
         'media',
         'descripcion',
         'ubicacion',
+        'status',
         'fecha_creacion',
         'fecha_finalizacion',
     ];

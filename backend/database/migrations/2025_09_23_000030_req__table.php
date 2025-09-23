@@ -19,6 +19,7 @@ return new class extends Migration
         $table->string('media');
         $table->text('descripcion');
         $table->string('ubicacion');
+        $table->boolean('status');
         $table->dateTime('fecha_creacion')->nullable(); 
         $table->dateTime('fecha_finalizacion')->nullable(); 
         $table->timestamps(); // created_at y updated_at

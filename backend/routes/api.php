@@ -16,3 +16,4 @@ Route::middleware('auth:sanctum')->post('/logout',[AuthController::class, 'logOu
 
 Route::post('/req', [ReqController::class, 'store']); 
 Route::put('/req/{id}/finalizar', [ReqController::class, 'finalizar']);
+Route::get('/req/activas', [ReqController::class, 'getRequisicionesActivas']); 

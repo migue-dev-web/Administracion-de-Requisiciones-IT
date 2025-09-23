@@ -23,6 +23,7 @@ class ReqController extends Controller
             'media'=>$request->media,
             'descripcion'=> $request->descripcion,
             'ubicacion'=> $request->ubicacion,
+            'status'=> true,
             'fecha_creacion' => now(), 
         ]);
 
@@ -31,11 +32,22 @@ class ReqController extends Controller
 
     public function finalizar(Request $request,$id)
     {
+        $request->validate([
+            'tecnico'=>'required|string|max:255',
+        ]);
         $requisicion = Req_Table::findOrFail( $id);
         $requisicion->update([
             'fecha_finalizacion' => now(),
             'tecnico'=>$request->tecnico,
+            'status'=> false,
         ]);
+
+        return response()->json($requisicion, Response::HTTP_OK);
+    }
+
+    public function getRequisicionesActivas()
+    {
+        $requisicion = Req_Table::where('status', true)->get();
 
         return response()->json($requisicion, Response::HTTP_OK);
     }
