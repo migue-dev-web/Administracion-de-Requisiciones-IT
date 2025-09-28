@@ -1,4 +1,4 @@
-# Imagen base con PHP, Composer y extensiones necesarias
+# Imagen base con PHP y extensiones
 FROM php:8.2-fpm
 
 # Instalar dependencias del sistema
@@ -20,9 +20,6 @@ COPY . .
 
 # Instalar dependencias de PHP
 RUN composer install --no-dev --optimize-autoloader
-
-# Generar la clave de Laravel (Render usa envs)
-RUN php artisan config:clear && php artisan route:clear && php artisan view:clear
 
 # Exponer puerto
 EXPOSE 8000
