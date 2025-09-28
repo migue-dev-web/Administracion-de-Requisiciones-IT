@@ -28,3 +28,10 @@ Homestead.json
 .env.production
 .phpactor.json
 auth.json
+
+/Frontend
+.requisicion.test.js
+.requisicion.js
+.package.json
+.package-lock.json
+
