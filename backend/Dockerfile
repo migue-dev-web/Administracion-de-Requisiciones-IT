@@ -24,5 +24,12 @@ RUN composer install --no-dev --optimize-autoloader
 # Exponer puerto
 EXPOSE 8000
 
-# Comando para iniciar Laravel
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+# Copiar script de inicio
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
+# Exponer puerto
+EXPOSE 8000
+
+# Comando para iniciar contenedor
+CMD ["/app/start.sh"]
