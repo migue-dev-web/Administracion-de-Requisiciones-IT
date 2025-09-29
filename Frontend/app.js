@@ -1,5 +1,5 @@
 import {createApp} from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
-
+const api ="https://administracion-de-requisiciones-it.onrender.com";
       const requisicion = {
         template: "#req",
         props: ["user"], 
@@ -26,7 +26,7 @@ import {createApp} from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
       }
 
       try{
-        const response = await fetch("http://127.0.0.1:8000/api/req", {
+        const response = await fetch(`${api}/api/req`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -76,7 +76,7 @@ import {createApp} from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
         };
 
         try{
-            const resp = await fetch("http://127.0.0.1:8000/api/login",{
+            const resp = await fetch(`${api}/api/login`,{
                 method:'POST',
                 headers:{
                     "Content-Type": "application/json",
@@ -138,7 +138,7 @@ import {createApp} from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
                 };
 
                 try{
-                    const resp = await fetch("http://127.0.0.1:8000/api/reg",{
+                    const resp = await fetch(`${api}/api/reg`,{
                         method:'POST',
                         headers:{
                             "Content-Type": "application/json",
@@ -174,7 +174,7 @@ import {createApp} from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
         methods: {
             async fetchReq(){
                 try{
-                    const resp = await fetch("http://127.0.0.1:8000/api/req/activas",{
+                    const resp = await fetch(`${api}/api/req/activas`,{
                         headers:{
                             "Accept": "application/json"
                         }
@@ -192,7 +192,7 @@ import {createApp} from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
                 if(!confirm("Cerrar requisicion?")) return;
 
                 try{
-                    const resp = await fetch(`http://127.0.0.1:8000/api/req/${id}/finalizar`,{
+                    const resp = await fetch(`${api}/api/req/${id}/finalizar`,{
                         method: "PUT", // o POST según tu API
                         headers: {
                             "Content-Type": "application/json",
