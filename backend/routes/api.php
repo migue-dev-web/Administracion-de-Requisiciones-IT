@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/reg', [AuthController::class, 'Reg']);
-
+Route::put('/usuarios/{id}/rol', [AuthController::class, 'updateRole']);
 
 Route::middleware('auth:sanctum')->get('/user',function (Request $request){
     return $request->user();
@@ -21,6 +21,6 @@ Route::get('/req/activas', [ReqController::class, 'getRequisicionesActivas']);
 
     // Rutas especiales para admin
     Route::middleware('role:admin')->group(function () {
-        Route::put('/usuarios/{id}/rol', [AuthController::class, 'updateRole']);
+        
     });
 });
