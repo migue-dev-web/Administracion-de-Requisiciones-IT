@@ -29,6 +29,7 @@ const api ="https://administracion-de-requisiciones-it.onrender.com";
         const response = await fetch(`${api}/api/req`, {
           method: "POST",
           headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem("token"),
             "Content-Type": "application/json",
             "Accept": "application/json"
           },
@@ -38,7 +39,7 @@ const api ="https://administracion-de-requisiciones-it.onrender.com";
 
         const data = await response.json();
         console.log("Requisición enviada:", data);
-
+        location.reload();
 
       }catch(error){
          console.error(error);
@@ -49,6 +50,7 @@ const api ="https://administracion-de-requisiciones-it.onrender.com";
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         this.$emit("logout");
+        location.reload();
     }
   }
     };
@@ -176,6 +178,7 @@ const api ="https://administracion-de-requisiciones-it.onrender.com";
                 try{
                     const resp = await fetch(`${api}/api/req/activas`,{
                         headers:{
+                            'Authorization': 'Bearer ' + localStorage.getItem("token"),
                             "Accept": "application/json"
                         }
                     });
@@ -195,6 +198,7 @@ const api ="https://administracion-de-requisiciones-it.onrender.com";
                     const resp = await fetch(`${api}/api/req/${id}/finalizar`,{
                         method: "PUT", // o POST según tu API
                         headers: {
+                            'Authorization': 'Bearer ' + localStorage.getItem("token"),
                             "Content-Type": "application/json",
                             "Accept": "application/json",
                         },

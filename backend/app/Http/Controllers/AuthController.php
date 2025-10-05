@@ -22,6 +22,7 @@ class AuthController extends Controller
     $user->name = $request->name;
     $user->email = $request->email;
     $user->password =Hash::make($request->password);
+    $user->role = $request->role ?? 'usuario';
     $user->save();
     
     return response($user, Response::HTTP_CREATED);
@@ -45,7 +46,18 @@ class AuthController extends Controller
     
    }
 
-   
+   public function updateRole(Request $request, $id)
+{
+    $request->validate([
+        'role' => 'required|in:admin,tecnico,usuario',
+    ]);
+
+    $user = ModelsUser::findOrFail($id);
+    $user->role = $request->role;
+    $user->save();
+
+    return response()->json(['message' => 'Rol actualizado correctamente', 'user' => $user]);
+}
 
 
 }

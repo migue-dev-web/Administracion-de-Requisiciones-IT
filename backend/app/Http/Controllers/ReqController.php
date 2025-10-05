@@ -18,8 +18,7 @@ class ReqController extends Controller
 
         $requisicion = Req_Table::create([
             'problema' => $request->problema,
-            'requisitor'=> $request->requisitor,
-            'tecnico'=> $request->tecnico,
+            'requisitor'=> $request->user()->name,
             'media'=>$request->media,
             'descripcion'=> $request->descripcion,
             'ubicacion'=> $request->ubicacion,
@@ -32,13 +31,13 @@ class ReqController extends Controller
 
     public function finalizar(Request $request,$id)
     {
-        $request->validate([
-            'tecnico'=>'required|string|max:255',
-        ]);
+        if (!in_array($request->user()->role, ['admin', 'tecnico'])) {
+        return response()->json(['message' => 'No autorizado'], Response::HTTP_FORBIDDEN);
+    }
         $requisicion = Req_Table::findOrFail( $id);
         $requisicion->update([
             'fecha_finalizacion' => now(),
-            'tecnico'=>$request->tecnico,
+            'tecnico' => $request->user()->name,
             'status'=> false,
         ]);
 
