@@ -7,7 +7,7 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
-        'https://migue-dev-web.github.io/Front-requisiciones',
+        'https://migue-dev-web.github.io',
         'http://127.0.0.1:5500',
     ],
 
