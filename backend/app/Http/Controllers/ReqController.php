@@ -50,4 +50,11 @@ class ReqController extends Controller
 
         return response()->json($requisicion, Response::HTTP_OK);
     }
+
+    public function getRequisicionesCerradas()
+    {
+        $requisicion = Req_Table::where('status', false)->get();
+
+        return response()->json($requisicion, Response::HTTP_OK);
+    }
 }
