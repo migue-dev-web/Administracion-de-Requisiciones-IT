@@ -6,6 +6,7 @@ use App\Models\Req_Table;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Models\Notification;
 class ReqController extends Controller
 {
     public function store(Request $request)
@@ -23,11 +24,27 @@ class ReqController extends Controller
             'descripcion'=> $request->descripcion,
             'ubicacion'=> $request->ubicacion,
             'status'=> true,
-            'fecha_creacion' => now(), 
+            'fecha_creacion' => now(),
+            'prioridad' => $request->prioridad,
+            'razon_prioridad' => $request->razon_prioridad, 
+        ]);
+
+        Notification::create([
+            'req_id' => $requisicion->id,
+            'mensaje' => "Nueva requisición creada por {$requisicion->requisitor}: {$requisicion->problema}",
         ]);
 
         return response()->json($requisicion, Response::HTTP_CREATED);
     }
+
+    public function cambiarPrioridad(Request $request, $id)
+{
+    $req = Req_Table::findOrFail($id);
+    $req->prioridad = $request->prioridad;
+    $req->save();
+
+    return response()->json(['message' => 'Prioridad actualizada']);
+}
 
     public function finalizar(Request $request,$id)
     {
@@ -40,20 +57,24 @@ class ReqController extends Controller
             'tecnico' => $request->user()->name,
             'status'=> false,
         ]);
-
+        Notification::where('req_id', $id)->delete();
         return response()->json($requisicion, Response::HTTP_OK);
     }
 
     public function getRequisicionesActivas()
     {
-        $requisicion = Req_Table::where('status', true)->get();
+        $requisicion = Req_Table::where('status', true)
+            ->orderBy('prioridad', 'asc')
+            ->get();
 
         return response()->json($requisicion, Response::HTTP_OK);
     }
 
     public function getRequisicionesCerradas()
     {
-        $requisicion = Req_Table::where('status', false)->get();
+        $requisicion = Req_Table::where('status', false)
+            ->orderBy('prioridad', 'asc')
+            ->get();
 
         return response()->json($requisicion, Response::HTTP_OK);
     }
