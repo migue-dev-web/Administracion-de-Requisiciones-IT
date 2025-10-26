@@ -18,7 +18,10 @@ Route::middleware('auth:sanctum')->get('/user',function (Request $request){
 Route::middleware('auth:sanctum')->group(function () {
    Route::post('/req', [ReqController::class, 'store']); 
 Route::put('/req/{id}/finalizar', [ReqController::class, 'finalizar']);
-Route::get('/req/activas', [ReqController::class, 'getRequisicionesActivas']); 
+Route::get('/req/activas', [ReqController::class, 'getRequisicionesActivas']);
+
+
+
 
 
 // Rutas especiales para admin y tecnicos
@@ -30,7 +33,9 @@ Route::middleware('role:admin,tecnico')->group(function () {
 
     // Rutas especiales para admin
     Route::middleware('role:admin')->group(function () {
+        Route::get('/usuarios', [AuthController::class, 'obtenerUsuarios']);
         Route::put('/usuarios/{id}/rol', [AuthController::class, 'updateRole']);
-        Route::middleware('role:admin')->put('/req/{id}/prioridad', [ReqController::class, 'cambiarPrioridad']);
+        Route::put('/requis/{id}/prioridad', [ReqController::class, 'cambiarPrioridad']);
+        
     });
 });

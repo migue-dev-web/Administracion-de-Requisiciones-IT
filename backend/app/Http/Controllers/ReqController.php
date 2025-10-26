@@ -13,8 +13,10 @@ class ReqController extends Controller
     {
         $request->validate([
             'problema' => 'required|string|max:255',
-            'descripcion'=>'required',
-            'ubicacion' => 'required',
+    'descripcion' => 'required',
+    'ubicacion' => 'required',
+    'prioridad' => 'required|integer|min:1|max:3',
+    'razon_prioridad' => 'nullable|string|max:255',
         ]);
 
         $requisicion = Req_Table::create([
@@ -39,11 +41,22 @@ class ReqController extends Controller
 
     public function cambiarPrioridad(Request $request, $id)
 {
-    $req = Req_Table::findOrFail($id);
-    $req->prioridad = $request->prioridad;
-    $req->save();
+    $request->validate([
+        'prioridad' => 'required|integer|min:1|max:3'
+    ]);
+    $requisicion = Req_Table::find($id);
 
-    return response()->json(['message' => 'Prioridad actualizada']);
+    if (!$requisicion) {
+        return response()->json(['error' => 'No se encontró la requisición'], 404);
+    }
+
+    $requisicion->prioridad = $request->input('prioridad'); // lee del JSON
+    $requisicion->save();
+
+    return response()->json([
+        'message' => 'Prioridad actualizada',
+        'requisicion' => $requisicion
+    ]);
 }
 
     public function finalizar(Request $request,$id)
@@ -78,4 +91,6 @@ class ReqController extends Controller
 
         return response()->json($requisicion, Response::HTTP_OK);
     }
+
+    
 }

@@ -5,23 +5,137 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <title>LogIn</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="module" src="app.js"></script>
   </head>
 <body>
     <div id="app">
+       <notificaciones v-if="hasToken && mostrarHistorial"></notificaciones>
       <button class="btn btn-success m-3" v-if="!showRegister && !hasToken" @click="showRegister = true">
     Registrar usuario
   </button>
+  <button v-if="mostrarHistorial && hasToken" class="btn btn-secondary m-3"@click="shHist = !shHist"><p v-if="!shHist">Historial</p><p v-if="shHist">Requisiciones</p></button>
+  
         <login v-if="!hasToken && !showRegister" @logged-in="handleLogin"></login>
-        <requisicion v-if="hasToken" :user="currentUser" @logout="handleLogout"></requisicion>
-        <registro v-if="showRegister" @registered="handleRegistered"></registro>
-        <tabler v-if="hasToken" ></tabler>
+        <requisicion v-if="hasToken && !shHist" :user="currentUser" @logout="handleLogout"></requisicion>
+        <registro v-if="showRegister " @registered="handleRegistered"></registro>
+        <tabler v-if="hasToken && !shHist" ></tabler>
+        <admin-panel v-if="mostrarHistorial && hasToken && !shHist"></admin-panel>
+        <historial v-if="hasToken && shHist && (userRole==1 || userRole==2)"></historial>
+        <estadisticas v-if="hasToken && shHist && (userRole==1 || userRole==2)"></estadisticas>
     </div>
+    
 
     <!--Templates-->
+
+
+
 <template id="reqTable">
   <div class="container mt-4">
     <h2 class="mb-3 text-center">Requisiciones Activas</h2>
+    <div class="table-responsive">
+     
+      <table class="table table-striped table-hover align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>ID</th>
+            <th>Problema</th>
+            <th>Requisitor</th>
+            <th>Media</th>
+            <th>Descripción</th>
+            <th>Ubicación</th>
+            <th>Prioridad</th>
+            <th v-if="userRole==1 || userRole==2">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="req in requisiciones" :key="req.id" :class="getPrioridadClase(req.prioridad)">
+            <td>{{ req.id }}</td>
+            <td>{{ req.problema }}</td>
+            <td>{{ req.requisitor }}</td>
+            <td>{{ req.media }}</td>
+            <td>{{ req.descripcion }}</td>
+            <td>{{ req.ubicacion }}</td>
+            <td>
+              <span class="fw-bold">
+                {{ prioridadTexto(req.prioridad) }}
+              </span>
+            </td>
+            <td v-if="userRole==1 || userRole==2">
+              <button @click="cerrarReq(req.id)" class="btn btn-danger btn-sm">Cerrar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</template>
+
+<template id="adminPanel">
+  <div class="container mt-4">
+    <h2 class="mb-3">Panel de Administrador</h2>
+
+    
+    <h4>Usuarios</h4>
+    <table class="table table-responsive table-striped">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Email</th>
+          <th>Rol</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="user in usuarios" :key="user.id">
+          <td>{{ user.id }}</td>
+          <td>{{ user.name }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.role }}</td>
+          <td>
+            <select v-model="user.rolselected" class="form-select form-select-sm d-inline w-auto">
+              <option value="user">Usuario</option>
+              <option value="tecnico">Técnico</option>
+              <option value="admin">Admin</option>
+            </select>
+            <button class="btn btn-sm btn-primary" @click="cambiarRol(user)">Actualizar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <h4 class="mt-5">Requisiciones</h4>
+    <table class="table table-responsive table-striped">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Problema</th>
+          <th>Prioridad</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="req in requisiciones" :key="req.id">
+          <td>{{ req.id }}</td>
+          <td>{{ req.problema }}</td>
+          <td>{{ prioridadTexto(req.prioridad) }}</td>
+          <td>
+            <select v-model="req.prioridades" class="form-select form-select-sm d-inline w-auto">
+              <option value="1">Alta</option>
+              <option value="2">Media</option>
+              <option value="3">Baja</option>
+            </select>
+            <button class="btn btn-sm btn-warning" @click="cambiarPrioridad(req)">Actualizar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</template>
+
+<template id="reqHist">
+  <div class="container mt-4">
+    <h2 class="mb-3 text-center">Historial de Requisiciones</h2>
     <div class="table-responsive">
       <table class="table table-striped table-hover align-middle">
         <thead class="table-dark">
@@ -32,7 +146,8 @@
             <th>Media</th>
             <th>Descripción</th>
             <th>Ubicación</th>
-            <th>Acciones</th>
+            <th>Atendio</th>
+            <th>Finalizada</th>
           </tr>
         </thead>
         <tbody>
@@ -44,8 +159,9 @@
             <td>{{ req.descripcion }}</td>
             <td>{{ req.ubicacion }}</td>
             <td>
-              <button @click="cerrarReq(req.id)" class="btn btn-danger btn-sm">Cerrar</button>
+              {{req.tecnico}}
             </td>
+            <td>{{ req.fecha_finalizacion ? new Date(req.fecha_finalizacion).toLocaleString() : 'N/A' }}</td>
           </tr>
         </tbody>
       </table>
@@ -90,6 +206,19 @@
         <div class="mb-3">
           <input v-model="ubicacion" class="form-control" placeholder="Ubicación">
         </div>
+        <div class="mb-3">
+          <label class="form-label">Prioridad:</label>
+          <select v-model="prioridad" class="form-select">
+            <option value="1">Alta</option>
+            <option value="2">Media</option>
+            <option value="3">Baja</option>
+          </select>
+        </div>
+
+        <div v-if="prioridad == 1" class="mb-3">
+          <label class="form-label">Motivo de prioridad alta:</label>
+          <textarea v-model="razon_prioridad" class="form-control"></textarea>
+        </div>
         <button type="submit" class="btn btn-outline-success w-100">Enviar</button>
       </form>
     </div>
@@ -118,7 +247,5 @@
     </div>
   </div>
 </template>
-
-    
 </body>
 </html>
