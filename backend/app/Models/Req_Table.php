@@ -19,6 +19,7 @@ class Req_Table extends Model
         'fecha_finalizacion',
         'prioridad',
         'razon_prioridad',
+        'solucion',
     ];
 
 

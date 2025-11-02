@@ -64,11 +64,15 @@ class ReqController extends Controller
         if (!in_array($request->user()->role, ['admin', 'tecnico'])) {
         return response()->json(['message' => 'No autorizado'], Response::HTTP_FORBIDDEN);
     }
+        $request->validate([
+            'solucion' => 'required|string|max:1000',
+        ]);
         $requisicion = Req_Table::findOrFail( $id);
         $requisicion->update([
             'fecha_finalizacion' => now(),
             'tecnico' => $request->user()->name,
             'status'=> false,
+            'solucion' => $request->solucion,
         ]);
         Notification::where('req_id', $id)->delete();
         return response()->json($requisicion, Response::HTTP_OK);
